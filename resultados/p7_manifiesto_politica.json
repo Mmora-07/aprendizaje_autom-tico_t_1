@@ -1,0 +1,121 @@
+{
+  "variables": [
+    "hora_salida",
+    "distancia_km",
+    "lluvia_pronosticada_mm",
+    "viento_pronosticado_kmh",
+    "ocupacion_programada_pct",
+    "trafico_programado",
+    "aerolinea",
+    "origen"
+  ],
+  "preprocesamiento": {
+    "numericas": {
+      "variables": [
+        "hora_salida",
+        "distancia_km",
+        "lluvia_pronosticada_mm",
+        "viento_pronosticado_kmh",
+        "ocupacion_programada_pct",
+        "trafico_programado"
+      ],
+      "imputacion_mediana": [
+        11.5,
+        992.8271766649225,
+        1.7703695731560725,
+        14.99353442849106,
+        77.29878469454927,
+        48.21071498893058
+      ],
+      "media": [
+        11.5,
+        993.0132990608906,
+        2.360700587045574,
+        14.977677907464003,
+        77.03611106576119,
+        48.174216652607
+      ],
+      "escala": [
+        6.922186552431729,
+        456.51856800711425,
+        2.109536091956472,
+        5.860444766984165,
+        11.427898421835582,
+        12.974103165228975
+      ]
+    },
+    "categoricas": {
+      "variables": [
+        "aerolinea",
+        "origen"
+      ],
+      "imputacion_moda": [
+        "Aero_A",
+        "CTG"
+      ],
+      "categorias": [
+        [
+          "Aero_A",
+          "Aero_B",
+          "Aero_C"
+        ],
+        [
+          "BOG",
+          "CLO",
+          "CTG",
+          "MDE"
+        ]
+      ],
+      "categoria_nueva": "bloque one-hot en ceros"
+    },
+    "ajustado_con": "entrenamiento (ids 1-5736)"
+  },
+  "modelo": {
+    "clase": "RegresionLogisticaGD",
+    "ponderada": true,
+    "lambda2": 0.1,
+    "columnas": [
+      "num__hora_salida",
+      "num__distancia_km",
+      "num__lluvia_pronosticada_mm",
+      "num__viento_pronosticado_kmh",
+      "num__ocupacion_programada_pct",
+      "num__trafico_programado",
+      "cat__aerolinea_Aero_A",
+      "cat__aerolinea_Aero_B",
+      "cat__aerolinea_Aero_C",
+      "cat__origen_BOG",
+      "cat__origen_CLO",
+      "cat__origen_CTG",
+      "cat__origen_MDE"
+    ],
+    "coef": [
+      0.129553282671965,
+      0.06680166895636712,
+      0.4824322283574614,
+      0.42287717828838317,
+      0.28911149558530974,
+      0.6356160214033136,
+      0.024800256361374246,
+      -0.10267843762688837,
+      0.07787803754580101,
+      0.08090861172372761,
+      -0.012034140789691544,
+      -0.07421047460883323,
+      0.005335859955084033
+    ],
+    "intercept": -0.7008189919576914
+  },
+  "regla": "alerta si p >= tau",
+  "estado_politica": "inviabilidad empírica",
+  "politicas": {
+    "tau_0.5": 0.5,
+    "tau_teorico": 0.07692307692307693,
+    "tau_diagnostico": 0.6351112455227611
+  },
+  "restricciones": {
+    "recall_min": 0.8,
+    "tasa_alertas_max": 0.15,
+    "costo": "(12 FN + FP) / N"
+  }
+}

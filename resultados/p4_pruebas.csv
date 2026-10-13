@@ -5,12 +5,12 @@ gradientes,"lineal, lam2=0.0, punto 3",8.114268416020546e-10,1e-05,True
 gradientes,"lineal, lam2=0.5, punto 1",9.061838379858166e-10,1e-05,True
 gradientes,"lineal, lam2=0.5, punto 2",7.184396649497775e-10,1e-05,True
 gradientes,"lineal, lam2=0.5, punto 3",6.173394682075164e-10,1e-05,True
-gradientes,"logística, lam2=0.0, punto 1",1.25683126981234e-10,1e-05,True
-gradientes,"logística, lam2=0.0, punto 2",6.841317728229438e-11,1e-05,True
-gradientes,"logística, lam2=0.0, punto 3",1.6807695874474011e-10,1e-05,True
-gradientes,"logística, lam2=0.5, punto 1",1.6599945844231496e-10,1e-05,True
-gradientes,"logística, lam2=0.5, punto 2",2.336619371670532e-10,1e-05,True
-gradientes,"logística, lam2=0.5, punto 3",9.151000490400468e-11,1e-05,True
+gradientes,"logística, lam2=0.0, punto 1",1.8991695453769546e-10,1e-05,True
+gradientes,"logística, lam2=0.0, punto 2",5.129309810387199e-11,1e-05,True
+gradientes,"logística, lam2=0.0, punto 3",1.5881328067405402e-10,1e-05,True
+gradientes,"logística, lam2=0.5, punto 1",8.440220088933431e-11,1e-05,True
+gradientes,"logística, lam2=0.5, punto 2",4.67107807003305e-10,1e-05,True
+gradientes,"logística, lam2=0.5, punto 3",1.4060032264914925e-10,1e-05,True
 estabilidad,"z=-1000, y=0",0.0,1e-12,True
 estabilidad,"z=-1000, y=1",0.0,1e-12,True
 estabilidad,"z=-100, y=0",0.0,1e-12,True

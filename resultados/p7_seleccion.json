@@ -1,0 +1,86 @@
+{
+  "criterio": "AP media en 4 pliegues temporales (gap=24) de entrenamiento",
+  "desempate": "diferencia < 1e-6 -> sin ponderar, luego mayor lambda2",
+  "historial": [
+    {
+      "modelo": "ponderada",
+      "lambda2": 0.1,
+      "AP_media": 0.2464645819335814,
+      "AP_desv": 0.09981164626660807,
+      "log_loss_media": 0.48390302053834183
+    },
+    {
+      "modelo": "ponderada",
+      "lambda2": 0.01,
+      "AP_media": 0.2379448520244607,
+      "AP_desv": 0.08150706104496623,
+      "log_loss_media": 0.46237608616124404
+    },
+    {
+      "modelo": "sin ponderar",
+      "lambda2": 0.01,
+      "AP_media": 0.235650669560666,
+      "AP_desv": 0.08248342498526806,
+      "log_loss_media": 0.09551269250972821
+    },
+    {
+      "modelo": "sin ponderar",
+      "lambda2": 0.001,
+      "AP_media": 0.22933116313737156,
+      "AP_desv": 0.06425270428851299,
+      "log_loss_media": 0.09459063018886796
+    },
+    {
+      "modelo": "ponderada",
+      "lambda2": 0.001,
+      "AP_media": 0.22636076807173602,
+      "AP_desv": 0.07188066055960914,
+      "log_loss_media": 0.47117167321691106
+    },
+    {
+      "modelo": "ponderada",
+      "lambda2": 1.0,
+      "AP_media": 0.2234308956550939,
+      "AP_desv": 0.08688744503362798,
+      "log_loss_media": 0.5927762249397048
+    },
+    {
+      "modelo": "sin ponderar",
+      "lambda2": 0.1,
+      "AP_media": 0.21568722230268464,
+      "AP_desv": 0.07645557758460837,
+      "log_loss_media": 0.10951019045629255
+    },
+    {
+      "modelo": "ponderada",
+      "lambda2": 10.0,
+      "AP_media": 0.21067474043186207,
+      "AP_desv": 0.0810392696349852,
+      "log_loss_media": 0.6760185467885738
+    },
+    {
+      "modelo": "sin ponderar",
+      "lambda2": 1.0,
+      "AP_media": 0.20900072461586883,
+      "AP_desv": 0.08069405324745474,
+      "log_loss_media": 0.11847317694802326
+    },
+    {
+      "modelo": "sin ponderar",
+      "lambda2": 10.0,
+      "AP_media": 0.20878103810432777,
+      "AP_desv": 0.08019831236172174,
+      "log_loss_media": 0.11974294158914375
+    }
+  ],
+  "ganador": {
+    "modelo": "ponderada",
+    "lambda2": 0.1,
+    "AP_media": 0.2464645819335814
+  },
+  "otro_candidato_final": {
+    "modelo": "sin ponderar",
+    "lambda2": 0.01,
+    "AP_media": 0.235650669560666
+  }
+}

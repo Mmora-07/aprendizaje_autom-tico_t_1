@@ -86,9 +86,9 @@ python -m nbconvert --to notebook --execute --inplace 01_implementacion_simulaci
 |---|---|
 | 01 | ~30 s |
 | 02 | ~15 s |
-| 03 | _por medir_ |
+| 03 | ~1 min |
 
-Tiempos medidos en: _por completar (procesador, RAM, sistema operativo)_.
+Tiempos medidos en: AMD Ryzen 7 5700U, 24 GB de RAM, Windows 11, Python 3.10.0.
 
 ---
 
@@ -114,7 +114,7 @@ La carpeta `resultados/` contiene los archivos que pide el enunciado:
 | 4 | `p4_pruebas.csv` (tabla de pruebas), `p4_historial_convergencia.csv`, `p4_comparacion_sklearn.csv` (objetivos equivalentes) |
 | 5 | `p5_sesgo_varianza.csv` (tabla por escenario, modelo y λ, con métricas de soporte de Lasso), `p5_frecuencias_seleccion.csv`, `p5_semillas.csv` |
 | 6 | `p6_particiones.csv` (manifiesto por `id`), `p6_auditoria.csv`, `p6_validacion_cv.csv` (resultados por pliegue), `p6_seleccion.json` (registro de la selección), `p6_evaluacion_final.csv`, `p6_predicciones_prueba.csv` |
-| 7 | Rangos e IDs temporales, resultados por pliegue, tabla de umbrales, manifiesto de la política, predicciones finales (con fecha y decisión) |
+| 7 | `p7_particiones.csv` (conjunto de cada `id_vuelo`), `p7_validacion_cv.csv` (resultados por pliegue), `p7_seleccion.json` (historial de selección), `p7_tabla_umbrales.csv`, `p7_manifiesto_politica.json`, `p7_evaluacion_final.csv`, `p7_predicciones_prueba.csv` (id, fecha, probabilidad y decisión por política) |
 
 ---
 

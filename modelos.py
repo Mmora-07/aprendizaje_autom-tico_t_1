@@ -55,7 +55,14 @@ def sigmoid(z):
     return np.exp(-np.logaddexp(0.0, -z))
 
 
-def perdida_logistica(y, z):
+def _escala_pesos(pesos, n):
+    """Factores c_n con Σ c_n = 1: 1/N sin pesos, a_n / Σ a_n con pesos."""
+    if pesos is None:
+        return np.full(n, 1.0 / n)
+    return pesos / np.sum(pesos)
+
+
+def perdida_logistica(y, z, pesos=None):
     """Pérdida logística media J_log calculada directamente desde los scores.
 
     Usa la forma equivalente  ℓ(y, z) = log(1 + e^{z}) - y z  (problema 3a),
@@ -67,16 +74,20 @@ def perdida_logistica(y, z):
         Etiquetas 0 o 1.
     z : numpy.ndarray de forma (N,)
         Scores lineales z = Xw + b.
+    pesos : numpy.ndarray de forma (N,) o None
+        Pesos a_n > 0 por observación. Con pesos la pérdida es
+        Σ a_n ℓ_n / Σ a_n (promedio ponderado); sin pesos, la media simple.
 
     Returns
     -------
     float
-        Pérdida media.
+        Pérdida media (ponderada si se dan pesos).
     """
     # Reutilizado de clase: calcular la pérdida desde z con np.logaddexp.
     # Mejoras: se usa la forma log(1 + e^z) - y z, la misma que se deriva en el
-    # problema 3a, en lugar de elegir el signo con np.where.
-    return float(np.mean(np.logaddexp(0.0, z) - y * z))
+    # problema 3a, en lugar de elegir el signo con np.where; opción de pesos.
+    perdidas = np.logaddexp(0.0, z) - y * z
+    return float(np.sum(_escala_pesos(pesos, len(y)) * perdidas))
 
 
 def objetivo_lineal(w, b, X, y, lam1=0.0, lam2=0.0):
@@ -100,23 +111,27 @@ def gradiente_lineal(w, b, X, y, lam2=0.0):
     return X.T @ error / len(y) + lam2 * w, float(np.mean(error))
 
 
-def objetivo_logistico(w, b, X, y, lam2=0.0):
-    """Objetivo completo F = J_log + (λ2/2) ||w||² para clasificación."""
-    return perdida_logistica(y, X @ w + b) + lam2 / 2 * float(w @ w)
+def objetivo_logistico(w, b, X, y, lam2=0.0, pesos=None):
+    """Objetivo completo F = J_log + (λ2/2) ||w||² para clasificación.
+
+    Con pesos, J_log es el promedio ponderado Σ a_n ℓ_n / Σ a_n. La
+    penalización (λ2/2)||w||² no cambia con los pesos.
+    """
+    return perdida_logistica(y, X @ w + b, pesos) + lam2 / 2 * float(w @ w)
 
 
-def gradiente_logistico(w, b, X, y, lam2=0.0):
+def gradiente_logistico(w, b, X, y, lam2=0.0, pesos=None):
     """Gradiente de J_log + (λ2/2)||w||².
 
     Returns
     -------
     grad_w : numpy.ndarray de forma (D,)
-        (1/N) Xᵀ(p - y) + λ2 w
+        Σ c_n (p_n - y_n) x_n + λ2 w,  con c_n = 1/N o c_n = a_n / Σ a_n
     grad_b : float
-        (1/N) Σ (p_n - y_n)
+        Σ c_n (p_n - y_n)   (el intercepto no lleva penalización)
     """
-    error = sigmoid(X @ w + b) - y
-    return X.T @ error / len(y) + lam2 * w, float(np.mean(error))
+    error = _escala_pesos(pesos, len(y)) * (sigmoid(X @ w + b) - y)
+    return X.T @ error + lam2 * w, float(np.sum(error))
 
 
 def umbral_suave(u, t):
@@ -550,7 +565,9 @@ class LassoProximal(RegresionLinealGD):
 class RegresionLogisticaGD(_ModeloIterativo):
     """Regresión logística binaria por descenso por gradiente, con opción L2.
 
-    Minimiza F = J_log + (λ2/2)||w||².
+    Minimiza F = J_log + (λ2/2)||w||². Si `fit` recibe pesos a_n, J_log es
+    el promedio ponderado Σ a_n ℓ_n / Σ a_n (ponderación de clases, problema 7)
+    y la penalización se mantiene igual.
 
     Parameters
     ----------
@@ -568,32 +585,42 @@ class RegresionLogisticaGD(_ModeloIterativo):
                  ajustar_intercepto=True):
         super().__init__(eta, tol, max_iter, warm_start, ajustar_intercepto)
         self.lam2 = lam2
+        self._pesos = None   # pesos del ajuste en curso (los fija fit)
 
     def _hiperparametros(self):
         return {"lam2": self.lam2, "eta": self.eta, "tol": self.tol, "max_iter": self.max_iter,
                 "ajustar_intercepto": self.ajustar_intercepto}
 
     def _objetivo(self, w, b, X, y):
-        return objetivo_logistico(w, b, X, y, lam2=self.lam2)
+        return objetivo_logistico(w, b, X, y, lam2=self.lam2, pesos=self._pesos)
 
     def _gradiente(self, w, b, X, y):
-        return gradiente_logistico(w, b, X, y, lam2=self.lam2)
+        return gradiente_logistico(w, b, X, y, lam2=self.lam2, pesos=self._pesos)
 
     def _lipschitz(self, X):
-        # Hessiano = X̃ᵀ diag(p(1-p)) X̃ / N + λ2P y p(1-p) <= 1/4.
+        # Hessiano = X̃ᵀ diag(c_n p_n(1-p_n)) X̃ + λ2P, con p(1-p) <= 1/4, así que
+        # L = σ_max(diag(√c) X̃)² / 4 + λ2 (c_n = 1/N sin pesos).
         A = _matriz_diseno(X, self.ajustar_intercepto)
-        return np.linalg.norm(A, 2) ** 2 / (4 * X.shape[0]) + self.lam2
+        A_escalada = np.sqrt(_escala_pesos(self._pesos, X.shape[0]))[:, None] * A
+        return np.linalg.norm(A_escalada, 2) ** 2 / 4 + self.lam2
 
-    def fit(self, X, y):
+    def fit(self, X, y, pesos=None):
+        """Ajusta el modelo; `pesos` (opcional) son pesos a_n > 0 por observación."""
         _validar_no_negativo("lam2", self.lam2)
         self._validar_hiperparametros()
         X, y = _validar_Xy(X, y, binaria=True)
+        if pesos is not None:
+            pesos = np.asarray(pesos, dtype=float)
+            if pesos.shape != y.shape or not np.all(np.isfinite(pesos)) or np.any(pesos <= 0):
+                raise ValueError("pesos debe ser un vector de la longitud de y con valores finitos > 0.")
+        self._pesos = pesos
         return self._ajustar(X, y)
 
-    def objetivo(self, X, y):
+    def objetivo(self, X, y, pesos=None):
+        """Evalúa F en (X, y), con pesos opcionales."""
         self._verificar_ajustado()
         X, y = _validar_Xy(X, y, binaria=True)
-        return self._objetivo(self.coef_, self.intercept_, X, y)
+        return objetivo_logistico(self.coef_, self.intercept_, X, y, lam2=self.lam2, pesos=pesos)
 
     def predict_proba(self, X):
         """Probabilidades de las dos clases: columnas [P(Y=0|x), P(Y=1|x)]."""
