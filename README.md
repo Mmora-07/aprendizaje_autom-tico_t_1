@@ -16,7 +16,7 @@ La parte teórica (problemas 1 a 3) se responde en el informe PDF. Algunos de su
 
 | Archivo | Problema | Qué se hace |
 |---|---|---|
-| `modelos.py` | — | Código común: OLS, Ridge, Lasso (gradiente proximal) y regresión logística con L2. Los tres notebooks lo importan, así que ningún modelo se implementa dos veces. |
+| `modelos.py` | — | Código común: OLS, Ridge, Lasso (gradiente proximal) y regresión logística con L2 y pesos de clase opcionales. Los tres notebooks lo importan, así que ningún modelo se implementa dos veces. |
 | `01_implementacion_simulacion.ipynb` | 4 y 5 | Pruebas numéricas de los modelos (gradientes, estabilidad, condiciones de optimalidad), comparación con scikit-learn y simulación de sesgo y varianza con ρ = 0 y ρ = 0.9. |
 | `02_regresion_airfoil.ipynb` | 6 | Auditoría de los datos, partición 80/20, EDA sobre el conjunto de desarrollo, validación cruzada de 5 pliegues y una única evaluación final en prueba. |
 | `03_clasificacion_vuelos.ipynb` | 7 | Partición temporal 60/20/20 con separación de 24 filas, CV expansiva, contraexperimento de fuga, calibración, tabla de umbrales y evaluación final en prueba. |
@@ -61,10 +61,11 @@ pip install -r requirements.txt
 | Paquete | Versión | Uso |
 |---|---|---|
 | numpy | 2.2.6 | Implementación de los modelos (`solve`, `lstsq`) |
-| pandas | 2.2.3 | Tablas, auditoría y exportación de resultados |
-| scikit-learn | 1.6.1 | Solo preprocesamiento, particiones, métricas y contrastes |
-| matplotlib | 3.10.3 | Figuras |
-| jupyter | 1.1.1 | Ejecución de los notebooks |
+| pandas | 2.3.2 | Tablas, auditoría y exportación de resultados |
+| scikit-learn | 1.7.2 | Solo preprocesamiento, particiones, métricas y contrastes |
+| matplotlib | 3.10.6 | Figuras |
+| ipykernel | 6.30.1 | Kernel de Python para los notebooks |
+| nbconvert | 7.16.6 | Ejecución de los notebooks desde la terminal |
 
 > La versión de scikit-learn está fijada porque la equivalencia entre λ₁, λ₂ y los parámetros `alpha` y `C` (problema 4c) depende de la versión instalada.
 
@@ -140,7 +141,17 @@ En el código, cada función o celda adaptada lleva un comentario que indica qu�
 
 | Función o celda | Fuente | Cambios realizados |
 |---|---|---|
-| _por completar_ | _notebook de clase_ | _por completar_ |
+| `sigmoid` (`modelos.py`) | Notebook de regresión lineal, logística y regularización | Se conserva la forma estable `exp(-logaddexp(0, -z))`; solo se documenta por qué no desborda |
+| `perdida_logistica` (`modelos.py`) | Notebook de regresión lineal, logística y regularización | Se calcula como `log(1 + e^z) - y z` (la forma del problema 3a) y admite pesos por observación, normalizados por Σa |
+| `_gradiente_proximal` (`modelos.py`) | Notebook de regresión lineal, logística y regularización (`fit_regularized`) | Bucle común a todos los modelos iterativos; registra el objetivo completo por iteración, el residuo ‖θ⁺ − θ‖/η y el motivo de parada, y detecta divergencia |
+| `RegresionLinealGD` (`modelos.py`) | Notebook de regresión lineal, logística y regularización (`LinearRegressionScratch`) | Opción L2, paso η = 1/L automático, validación de entradas e hiperparámetros, arranque en caliente opcional y opción sin intercepto |
+| `RegresionLogisticaGD` (`modelos.py`) | Notebook de regresión lineal, logística y regularización (`LogisticRegressionScratch`) | Opción L2, pesos de clase, paso η = 1/L, validaciones, arranque en caliente opcional y opción sin intercepto |
+| Descarga y lectura de Airfoil (notebook 02) | Notebook de regresión lineal, logística y regularización | Se agrega un `id` estable por número de línea y el hash SHA-256 del archivo crudo |
+| `generar_vuelos` (notebook 03) | Notebook de clasificación de vuelos | Copiada sin cambios (el enunciado exige no modificarla); fuera de la función se agregan `id_vuelo` y la etiqueta |
+| Partición temporal (notebook 03) | Notebook de clasificación de vuelos (`separar_por_tiempo`) | Mismos cortes y exclusión de 24 filas; se registra el conjunto de cada `id_vuelo`, incluidas las filas excluidas, y los rangos de cada período |
+| Preprocesador (notebook 03) | Notebook de clasificación de vuelos (`construir_pipeline`) | Mismas ramas numérica y categórica; el estimador final es la logística propia en lugar de la de scikit-learn |
+
+`RegresionOLS`, `RegresionRidge`, `LassoProximal`, las pruebas del problema 4, la simulación del problema 5 y el resto de los análisis son implementaciones nuevas.
 
 **Responsabilidades:** _por completar_.
 
