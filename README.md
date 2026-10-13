@@ -35,7 +35,8 @@ Los problemas 4 y 5 comparten notebook porque los dos usan datos sintéticos y l
 ├── 03_clasificacion_vuelos.ipynb       # Problema 7
 ├── data/
 │   └── airfoil_self_noise.dat          # Datos crudos (no se modifican)
-└── resultados/                         # Salidas estructuradas (CSV / JSON)
+└── resultados/                         # Salidas estructuradas (CSV / JSON), prefijo por problema
+    └── parametros/                     # Parámetros de modelos guardados (JSON)
 ```
 
 ---
@@ -110,7 +111,7 @@ La carpeta `resultados/` contiene los archivos que pide el enunciado:
 
 | Problema | Archivos |
 |---|---|
-| 4 | Tabla de pruebas numéricas, historiales de convergencia, comparación con scikit-learn |
+| 4 | `p4_pruebas.csv` (tabla de pruebas), `p4_historial_convergencia.csv`, `p4_comparacion_sklearn.csv` (objetivos equivalentes) |
 | 5 | Sesgo², varianza y error por escenario, modelo y λ; frecuencias de selección de Lasso |
 | 6 | Particiones por `id`, auditoría, resultados por pliegue, registro de selección, predicciones finales |
 | 7 | Rangos e IDs temporales, resultados por pliegue, tabla de umbrales, manifiesto de la política, predicciones finales (con fecha y decisión) |
@@ -129,6 +130,13 @@ La carpeta `resultados/` contiene los archivos que pide el enunciado:
 ## Atribución y uso de IA
 
 **Código adaptado de clase**
+
+En el código, cada función o celda adaptada lleva un comentario que indica qué se reutilizó y qué se cambió:
+
+```python
+# Reutilizado de clase: <qué parte se tomó>
+# Mejoras: <qué se modificó o agregó y por qué>
+```
 
 | Función o celda | Fuente | Cambios realizados |
 |---|---|---|
