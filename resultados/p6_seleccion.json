@@ -1,0 +1,44 @@
+{
+  "regla": "menor RMSE medio en 5 pliegues; empate < 0.001 dB -> representacion original, mayor lambda, Lasso sobre Ridge",
+  "grilla_lambda": [
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "candidatos_empatados": [
+    {
+      "representacion": "alternativa",
+      "modelo": "Ridge",
+      "lambda": 0.001,
+      "RMSE_medio": 4.222870886093195
+    },
+    {
+      "representacion": "alternativa",
+      "modelo": "Lasso",
+      "lambda": 0.001,
+      "RMSE_medio": 4.2229129584085445
+    },
+    {
+      "representacion": "alternativa",
+      "modelo": "Lasso",
+      "lambda": 0.01,
+      "RMSE_medio": 4.223546974073517
+    }
+  ],
+  "representacion": "alternativa",
+  "regularizado": {
+    "modelo": "Lasso",
+    "lambda": 0.01,
+    "RMSE_medio_cv": 4.223546974073517,
+    "RMSE_desv_cv": 0.36996232106551363
+  },
+  "OLS": {
+    "RMSE_medio_cv": 4.222882784134191,
+    "RMSE_desv_cv": 0.3667002601240516
+  },
+  "referencia": {
+    "RMSE_medio_cv": 7.014239509140998
+  }
+}

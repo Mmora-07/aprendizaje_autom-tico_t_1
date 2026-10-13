@@ -1,0 +1,7 @@
+,tipo,unidad,faltantes,valores únicos,mínimo,máximo,fuera de dominio
+frecuencia,int64,Hz,0,21,200.0,20000.0,0
+angulo,float64,grados,0,27,0.0,22.2,0
+cuerda,float64,m,0,6,0.0254,0.3048,0
+velocidad,float64,m/s,0,4,31.7,71.3,0
+espesor,float64,m,0,105,0.000400682,0.0584113,0
+sonido,float64,dB,0,1456,103.38,140.987,0

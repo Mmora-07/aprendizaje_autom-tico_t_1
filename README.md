@@ -85,7 +85,7 @@ python -m nbconvert --to notebook --execute --inplace 01_implementacion_simulaci
 | Notebook | Tiempo aproximado |
 |---|---|
 | 01 | ~30 s |
-| 02 | _por medir_ |
+| 02 | ~15 s |
 | 03 | _por medir_ |
 
 Tiempos medidos en: _por completar (procesador, RAM, sistema operativo)_.
@@ -113,7 +113,7 @@ La carpeta `resultados/` contiene los archivos que pide el enunciado:
 |---|---|
 | 4 | `p4_pruebas.csv` (tabla de pruebas), `p4_historial_convergencia.csv`, `p4_comparacion_sklearn.csv` (objetivos equivalentes) |
 | 5 | `p5_sesgo_varianza.csv` (tabla por escenario, modelo y λ, con métricas de soporte de Lasso), `p5_frecuencias_seleccion.csv`, `p5_semillas.csv` |
-| 6 | Particiones por `id`, auditoría, resultados por pliegue, registro de selección, predicciones finales |
+| 6 | `p6_particiones.csv` (manifiesto por `id`), `p6_auditoria.csv`, `p6_validacion_cv.csv` (resultados por pliegue), `p6_seleccion.json` (registro de la selección), `p6_evaluacion_final.csv`, `p6_predicciones_prueba.csv` |
 | 7 | Rangos e IDs temporales, resultados por pliegue, tabla de umbrales, manifiesto de la política, predicciones finales (con fecha y decisión) |
 
 ---
