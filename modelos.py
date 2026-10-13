@@ -182,6 +182,11 @@ def _matriz_aumentada(X):
     return np.column_stack([np.ones(X.shape[0]), X])
 
 
+def _matriz_diseno(X, ajustar_intercepto):
+    """Matriz con la que se ajusta: X̃ si hay intercepto, X si b se fija en 0."""
+    return _matriz_aumentada(X) if ajustar_intercepto else X
+
+
 # =============================================================================
 # Clase base
 # =============================================================================
@@ -199,6 +204,9 @@ class _ModeloLineal:
         Iteraciones realizadas (0 en las soluciones directas).
     motivo_parada_ : str
         "solucion directa", "convergencia", "max_iter" o "divergencia".
+
+    Todos los modelos aceptan `ajustar_intercepto` (True por defecto). Con
+    False el intercepto se fija en b = 0 y no se estima (problema 5).
     """
 
     def _verificar_ajustado(self):
@@ -220,6 +228,13 @@ class _ModeloLineal:
         self._verificar_ajustado()
         X, y = _validar_Xy(X, y)
         return self._objetivo(self.coef_, self.intercept_, X, y)
+
+    def _guardar_theta(self, theta):
+        """Separa θ en intercepto y coeficientes según `ajustar_intercepto`."""
+        if self.ajustar_intercepto:
+            self.intercept_, self.coef_ = float(theta[0]), theta[1:]
+        else:
+            self.intercept_, self.coef_ = 0.0, theta
 
     def guardar_parametros(self, ruta):
         """Guarda coeficientes, intercepto e hiperparámetros en un archivo JSON.
@@ -258,14 +273,23 @@ class RegresionOLS(_ModeloLineal):
     soluciones y lstsq devuelve la de norma mínima; las predicciones X̃θ son
     las mismas para todas.
 
+    Parameters
+    ----------
+    ajustar_intercepto : bool
+        Si es False se usa X en lugar de X̃ y b = 0.
+
     Atributos adicionales
     ---------------------
     rango_ : int
-        Rango numérico de X̃ = [1 X]. Si rango_ < D + 1, la solución no es única.
+        Rango numérico de la matriz de diseño. Si es menor que su número de
+        columnas, la solución no es única.
     """
 
+    def __init__(self, ajustar_intercepto=True):
+        self.ajustar_intercepto = ajustar_intercepto
+
     def _hiperparametros(self):
-        return {}
+        return {"ajustar_intercepto": self.ajustar_intercepto}
 
     def _objetivo(self, w, b, X, y):
         return objetivo_lineal(w, b, X, y)
@@ -273,8 +297,9 @@ class RegresionOLS(_ModeloLineal):
     def fit(self, X, y):
         """Ajusta θ = (b, w) minimizando (1/2N)||X̃θ - y||²."""
         X, y = _validar_Xy(X, y)
-        theta, _, self.rango_, _ = np.linalg.lstsq(_matriz_aumentada(X), y, rcond=None)
-        self.intercept_, self.coef_ = float(theta[0]), theta[1:]
+        A = _matriz_diseno(X, self.ajustar_intercepto)
+        theta, _, self.rango_, _ = np.linalg.lstsq(A, y, rcond=None)
+        self._guardar_theta(theta)
         self.objetivo_final_ = self._objetivo(self.coef_, self.intercept_, X, y)
         self.n_iter_, self.motivo_parada_ = 0, "solucion directa"
         return self
@@ -296,13 +321,15 @@ class RegresionRidge(_ModeloLineal):
     ----------
     lam2 : float > 0
         Intensidad de la penalización L2.
+    ajustar_intercepto : bool
+        Si es False se resuelve (XᵀX + Nλ2 I) w = Xᵀy con b = 0.
     """
 
-    def __init__(self, lam2=1.0):
-        self.lam2 = lam2
+    def __init__(self, lam2=1.0, ajustar_intercepto=True):
+        self.lam2, self.ajustar_intercepto = lam2, ajustar_intercepto
 
     def _hiperparametros(self):
-        return {"lam2": self.lam2}
+        return {"lam2": self.lam2, "ajustar_intercepto": self.ajustar_intercepto}
 
     def _objetivo(self, w, b, X, y):
         return objetivo_lineal(w, b, X, y, lam2=self.lam2)
@@ -311,11 +338,12 @@ class RegresionRidge(_ModeloLineal):
         """Ajusta θ = (b, w) resolviendo (X̃ᵀX̃ + Nλ2P)θ = X̃ᵀy."""
         _validar_positivo("lam2", self.lam2)
         X, y = _validar_Xy(X, y)
-        X_aum = _matriz_aumentada(X)
-        P = np.eye(X_aum.shape[1])
-        P[0, 0] = 0.0  # el intercepto no se penaliza
-        theta = np.linalg.solve(X_aum.T @ X_aum + len(y) * self.lam2 * P, X_aum.T @ y)
-        self.intercept_, self.coef_ = float(theta[0]), theta[1:]
+        A = _matriz_diseno(X, self.ajustar_intercepto)
+        P = np.eye(A.shape[1])
+        if self.ajustar_intercepto:
+            P[0, 0] = 0.0  # el intercepto no se penaliza
+        theta = np.linalg.solve(A.T @ A + len(y) * self.lam2 * P, A.T @ y)
+        self._guardar_theta(theta)
         self.objetivo_final_ = self._objetivo(self.coef_, self.intercept_, X, y)
         self.n_iter_, self.motivo_parada_ = 0, "solucion directa"
         return self
@@ -325,7 +353,8 @@ class RegresionRidge(_ModeloLineal):
 # Métodos iterativos: descenso por gradiente y gradiente proximal
 # =============================================================================
 
-def _gradiente_proximal(gradiente, objetivo, w, b, lam1, eta, tol, max_iter):
+def _gradiente_proximal(gradiente, objetivo, w, b, lam1, eta, tol, max_iter,
+                        ajustar_intercepto=True):
     """Bucle común de los modelos iterativos.
 
     Minimiza f(w, b) + λ1||w||₁, donde f es la parte diferenciable, con
@@ -334,7 +363,7 @@ def _gradiente_proximal(gradiente, objetivo, w, b, lam1, eta, tol, max_iter):
         b⁺ = b - η ∂f/∂b               (el intercepto no se penaliza)
 
     Si λ1 = 0, el umbral suave es la identidad y el bucle es descenso por
-    gradiente ordinario.
+    gradiente ordinario. Si ajustar_intercepto es False, b no se actualiza.
 
     Criterio de parada: ||θ⁺ - θ||₂ / η < tol, con θ = (b, w). Para λ1 = 0
     es la norma del gradiente; para λ1 > 0 es el residuo de la actualización
@@ -361,7 +390,7 @@ def _gradiente_proximal(gradiente, objetivo, w, b, lam1, eta, tol, max_iter):
     for n_iter in range(1, max_iter + 1):
         grad_w, grad_b = gradiente(w, b)
         w_nuevo = umbral_suave(w - eta * grad_w, eta * lam1)
-        b_nuevo = b - eta * grad_b
+        b_nuevo = b - eta * grad_b if ajustar_intercepto else b
         residuo = np.sqrt(np.sum((w_nuevo - w) ** 2) + (b_nuevo - b) ** 2) / eta
         w, b = w_nuevo, b_nuevo
         historial.append(objetivo(w, b))
@@ -392,6 +421,8 @@ class _ModeloIterativo(_ModeloLineal):
         Si es False (por defecto), cada llamada a fit reinicia en w = 0, b = 0.
         Si es True y el modelo ya estaba ajustado con el mismo número de
         columnas, fit continúa desde los parámetros anteriores.
+    ajustar_intercepto : bool
+        Si es False, b se mantiene en 0 durante todo el ajuste.
 
     Atributos adicionales
     ---------------------
@@ -403,8 +434,10 @@ class _ModeloIterativo(_ModeloLineal):
         Último valor de ||θ⁺ - θ||₂ / η.
     """
 
-    def __init__(self, eta=None, tol=1e-8, max_iter=100_000, warm_start=False):
+    def __init__(self, eta=None, tol=1e-8, max_iter=100_000, warm_start=False,
+                 ajustar_intercepto=True):
         self.eta, self.tol, self.max_iter, self.warm_start = eta, tol, max_iter, warm_start
+        self.ajustar_intercepto = ajustar_intercepto
 
     def _validar_hiperparametros(self):
         if self.eta is not None:
@@ -429,7 +462,8 @@ class _ModeloIterativo(_ModeloLineal):
          self.residuo_final_, self.n_iter_, self.motivo_parada_) = _gradiente_proximal(
             gradiente=lambda w, b: self._gradiente(w, b, X, y),
             objetivo=lambda w, b: self._objetivo(w, b, X, y),
-            w=w, b=b, lam1=lam1, eta=self.eta_, tol=self.tol, max_iter=self.max_iter)
+            w=w, b=b, lam1=lam1, eta=self.eta_, tol=self.tol, max_iter=self.max_iter,
+            ajustar_intercepto=self.ajustar_intercepto)
         self.objetivo_final_ = self.historial_objetivo_[-1]
         return self
 
@@ -443,19 +477,21 @@ class RegresionLinealGD(_ModeloIterativo):
     ----------
     lam2 : float >= 0
         Intensidad de la penalización L2.
-    eta, tol, max_iter, warm_start : ver `_ModeloIterativo`.
+    eta, tol, max_iter, warm_start, ajustar_intercepto : ver `_ModeloIterativo`.
     """
 
     # Reutilizado de clase: LinearRegressionScratch (gradientes de MSE/2).
     # Mejoras: opción L2, paso η = 1/L automático, validaciones, objetivo
     # completo por iteración, motivo de parada y arranque en caliente opcional.
 
-    def __init__(self, lam2=0.0, eta=None, tol=1e-8, max_iter=100_000, warm_start=False):
-        super().__init__(eta, tol, max_iter, warm_start)
+    def __init__(self, lam2=0.0, eta=None, tol=1e-8, max_iter=100_000, warm_start=False,
+                 ajustar_intercepto=True):
+        super().__init__(eta, tol, max_iter, warm_start, ajustar_intercepto)
         self.lam2 = lam2
 
     def _hiperparametros(self):
-        return {"lam2": self.lam2, "eta": self.eta, "tol": self.tol, "max_iter": self.max_iter}
+        return {"lam2": self.lam2, "eta": self.eta, "tol": self.tol, "max_iter": self.max_iter,
+                "ajustar_intercepto": self.ajustar_intercepto}
 
     def _objetivo(self, w, b, X, y):
         return objetivo_lineal(w, b, X, y, lam2=self.lam2)
@@ -466,7 +502,8 @@ class RegresionLinealGD(_ModeloIterativo):
     def _lipschitz(self, X):
         # El Hessiano de la parte suave es X̃ᵀX̃/N + λ2P; su mayor valor propio
         # está acotado por σ_max(X̃)²/N + λ2 (σ_max: mayor valor singular).
-        return np.linalg.norm(_matriz_aumentada(X), 2) ** 2 / X.shape[0] + self.lam2
+        A = _matriz_diseno(X, self.ajustar_intercepto)
+        return np.linalg.norm(A, 2) ** 2 / X.shape[0] + self.lam2
 
     def fit(self, X, y):
         _validar_no_negativo("lam2", self.lam2)
@@ -487,15 +524,18 @@ class LassoProximal(RegresionLinealGD):
     ----------
     lam1 : float >= 0
         Intensidad de la penalización L1.
-    eta, tol, max_iter, warm_start : ver `_ModeloIterativo`.
+    eta, tol, max_iter, warm_start, ajustar_intercepto : ver `_ModeloIterativo`.
     """
 
-    def __init__(self, lam1=1.0, eta=None, tol=1e-8, max_iter=100_000, warm_start=False):
-        super().__init__(lam2=0.0, eta=eta, tol=tol, max_iter=max_iter, warm_start=warm_start)
+    def __init__(self, lam1=1.0, eta=None, tol=1e-8, max_iter=100_000, warm_start=False,
+                 ajustar_intercepto=True):
+        super().__init__(lam2=0.0, eta=eta, tol=tol, max_iter=max_iter, warm_start=warm_start,
+                         ajustar_intercepto=ajustar_intercepto)
         self.lam1 = lam1
 
     def _hiperparametros(self):
-        return {"lam1": self.lam1, "eta": self.eta, "tol": self.tol, "max_iter": self.max_iter}
+        return {"lam1": self.lam1, "eta": self.eta, "tol": self.tol, "max_iter": self.max_iter,
+                "ajustar_intercepto": self.ajustar_intercepto}
 
     def _objetivo(self, w, b, X, y):
         return objetivo_lineal(w, b, X, y, lam1=self.lam1)
@@ -516,7 +556,7 @@ class RegresionLogisticaGD(_ModeloIterativo):
     ----------
     lam2 : float >= 0
         Intensidad de la penalización L2.
-    eta, tol, max_iter, warm_start : ver `_ModeloIterativo`.
+    eta, tol, max_iter, warm_start, ajustar_intercepto : ver `_ModeloIterativo`.
     """
 
     # Reutilizado de clase: LogisticRegressionScratch (gradiente X̃ᵀ(p - y)/N,
@@ -524,12 +564,14 @@ class RegresionLogisticaGD(_ModeloIterativo):
     # Mejoras: opción L2, paso η = 1/L, validaciones, objetivo completo por
     # iteración, motivo de parada y arranque en caliente opcional.
 
-    def __init__(self, lam2=0.0, eta=None, tol=1e-8, max_iter=100_000, warm_start=False):
-        super().__init__(eta, tol, max_iter, warm_start)
+    def __init__(self, lam2=0.0, eta=None, tol=1e-8, max_iter=100_000, warm_start=False,
+                 ajustar_intercepto=True):
+        super().__init__(eta, tol, max_iter, warm_start, ajustar_intercepto)
         self.lam2 = lam2
 
     def _hiperparametros(self):
-        return {"lam2": self.lam2, "eta": self.eta, "tol": self.tol, "max_iter": self.max_iter}
+        return {"lam2": self.lam2, "eta": self.eta, "tol": self.tol, "max_iter": self.max_iter,
+                "ajustar_intercepto": self.ajustar_intercepto}
 
     def _objetivo(self, w, b, X, y):
         return objetivo_logistico(w, b, X, y, lam2=self.lam2)
@@ -539,7 +581,8 @@ class RegresionLogisticaGD(_ModeloIterativo):
 
     def _lipschitz(self, X):
         # Hessiano = X̃ᵀ diag(p(1-p)) X̃ / N + λ2P y p(1-p) <= 1/4.
-        return np.linalg.norm(_matriz_aumentada(X), 2) ** 2 / (4 * X.shape[0]) + self.lam2
+        A = _matriz_diseno(X, self.ajustar_intercepto)
+        return np.linalg.norm(A, 2) ** 2 / (4 * X.shape[0]) + self.lam2
 
     def fit(self, X, y):
         _validar_no_negativo("lam2", self.lam2)

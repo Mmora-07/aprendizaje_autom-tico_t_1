@@ -4,7 +4,8 @@
     "lam2": 0.01,
     "eta": null,
     "tol": 1e-08,
-    "max_iter": 100000
+    "max_iter": 100000,
+    "ajustar_intercepto": true
   },
   "coef": [
     1.4401448323885155,

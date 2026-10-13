@@ -1,7 +1,8 @@
 {
   "modelo": "RegresionRidge",
   "hiperparametros": {
-    "lam2": 0.1
+    "lam2": 0.1,
+    "ajustar_intercepto": true
   },
   "coef": [
     1.8523348442682281,

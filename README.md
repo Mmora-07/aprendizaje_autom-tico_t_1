@@ -79,12 +79,12 @@ Los notebooks se ejecutan **en orden**, cada uno desde un kernel limpio (*Restar
 Para ejecutarlos todos desde la terminal:
 
 ```bash
-jupyter nbconvert --to notebook --execute --inplace 01_implementacion_simulacion.ipynb 02_regresion_airfoil.ipynb 03_clasificacion_vuelos.ipynb
+python -m nbconvert --to notebook --execute --inplace 01_implementacion_simulacion.ipynb 02_regresion_airfoil.ipynb 03_clasificacion_vuelos.ipynb
 ```
 
 | Notebook | Tiempo aproximado |
 |---|---|
-| 01 | _por medir_ |
+| 01 | ~30 s |
 | 02 | _por medir_ |
 | 03 | _por medir_ |
 
@@ -103,7 +103,7 @@ Tiempos medidos en: _por completar (procesador, RAM, sistema operativo)_.
 ## Semillas
 
 - **Semilla maestra: 2026.** Se usa para la partición 80/20 de Airfoil, los pliegues con mezcla y el generador de vuelos.
-- **Problema 5:** las subsemillas de los diseños (X, X\*) y de los ruidos ε⁽ʳ⁾ se derivan de la maestra y quedan registradas en `resultados/`.
+- **Problema 5:** las subsemillas de los diseños (X, X\*) y de los ruidos ε⁽ʳ⁾ se derivan de la maestra y quedan registradas en `resultados/p5_semillas.csv`.
 
 ## Resultados
 
@@ -112,7 +112,7 @@ La carpeta `resultados/` contiene los archivos que pide el enunciado:
 | Problema | Archivos |
 |---|---|
 | 4 | `p4_pruebas.csv` (tabla de pruebas), `p4_historial_convergencia.csv`, `p4_comparacion_sklearn.csv` (objetivos equivalentes) |
-| 5 | Sesgo², varianza y error por escenario, modelo y λ; frecuencias de selección de Lasso |
+| 5 | `p5_sesgo_varianza.csv` (tabla por escenario, modelo y λ, con métricas de soporte de Lasso), `p5_frecuencias_seleccion.csv`, `p5_semillas.csv` |
 | 6 | Particiones por `id`, auditoría, resultados por pliegue, registro de selección, predicciones finales |
 | 7 | Rangos e IDs temporales, resultados por pliegue, tabla de umbrales, manifiesto de la política, predicciones finales (con fecha y decisión) |
 
