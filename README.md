@@ -21,8 +21,6 @@ La parte teórica (problemas 1 a 3) se responde en el informe PDF. Algunos de su
 | `02_regresion_airfoil.ipynb` | 6 | Auditoría de los datos, partición 80/20, EDA sobre el conjunto de desarrollo, validación cruzada de 5 pliegues y una única evaluación final en prueba. |
 | `03_clasificacion_vuelos.ipynb` | 7 | Partición temporal 60/20/20 con separación de 24 filas, CV expansiva, contraexperimento de fuga, calibración, tabla de umbrales y evaluación final en prueba. |
 
-Los problemas 4 y 5 comparten notebook porque los dos usan datos sintéticos y las mismas implementaciones. Por eso son tres notebooks para cuatro problemas.
-
 ## Estructura del repositorio
 
 ```
@@ -97,7 +95,7 @@ Tiempos medidos en: AMD Ryzen 7 5700U, 24 GB de RAM, Windows 11, Python 3.10.0.
 
 | Caso | Procedencia |
 |---|---|
-| Airfoil Self-Noise | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/291/airfoil+self+noise). Lo descarga el notebook 02 en `data/airfoil_self_noise.dat`, con la misma fuente del notebook de regresión de clase. |
+| Airfoil Self-Noise | [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/291/airfoil+self+noise). Lo descarga el notebook 02 en `data/airfoil_self_noise.dat`, con la misma fuente que se usó en el notebook de regresión de clase. |
 | Vuelos sintéticos | `generar_vuelos(n=9600, seed=2026)`, tomada del notebook de clasificación de clase sin cambiar su mecanismo. |
 | Simulación controlada | Generador del problema 5, definido en el notebook 01. |
 
