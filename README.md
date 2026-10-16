@@ -1,4 +1,5 @@
 # Taller 1 — Aprendizaje Automático (2026-2S)
+# Mateo Sebastián Mora Montero, Diego Carvajal González
 
 **Datos, modelos lineales y decisiones bajo incertidumbre**
 
@@ -151,6 +152,4 @@ En el código, cada función o celda adaptada lleva un comentario que indica qu�
 
 `RegresionOLS`, `RegresionRidge`, `LassoProximal`, las pruebas del problema 4, la simulación del problema 5 y el resto de los análisis son implementaciones nuevas.
 
-**Responsabilidades:** _por completar_.
-
-**Uso de IA generativa:** _por completar: para qué se usó, qué se verificó y qué se corrigió._
+**Uso de IA generativa:** _por completar: Redacción y escritura en Latex, revisión teórica de resultados del informe, organización de código, comentarios, docstrings, redacción general y creación de tests. Todo el contenido generado/modificado por IA fue revisado posteriormente por nosotros.
