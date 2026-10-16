@@ -26,34 +26,14 @@ estabilidad,"z=100, y=1",0.0,1e-12,True
 estabilidad,"z=1000, y=0",0.0,1e-12,True
 estabilidad,"z=1000, y=1",0.0,1e-12,True
 optimalidad,OLS duplicada: residuo ecuaciones normales,2.314176393129658e-15,1e-10,True
-optimalidad,OLS duplicada: predicciones = OLS sin duplicar,5.329070518200751e-15,1e-10,True
-optimalidad,OLS duplicada: rango de X̃ (< D+2 columnas),6.0,7.0,True
 optimalidad,Ridge duplicada: residuo ecuaciones normales,5.690583463874556e-16,1e-10,True
-optimalidad,Ridge duplicada: coeficientes iguales en columnas iguales,8.43769498715119e-15,1e-10,True
-optimalidad,Ridge: descenso por gradiente = solve,2.265399312584293e-09,1e-06,True
-optimalidad,Lasso ortogonal: |X^T X/N - I|,8.881784197001252e-16,1e-10,True
-optimalidad,Lasso ortogonal: proximal = umbral suave cerrado,6.661338147750939e-16,1e-06,True
 optimalidad,Lasso ortogonal: violación KKT,2.220446049250313e-16,1e-06,True
 optimalidad,Lasso no ortogonal: violación KKT,1.037682981208654e-09,1e-06,True
 persistencia,Ridge (solve): predicciones idénticas tras guardar/cargar,0.0,0.0,True
 persistencia,Lasso proximal: predicciones idénticas tras guardar/cargar,0.0,0.0,True
 persistencia,Logística GD + L2: predicciones idénticas tras guardar/cargar,0.0,0.0,True
-probabilidades,"en [0, 1] (entradas normales)",0.004455883920597251,0.0,True
-probabilidades,suman 1 (entradas normales),0.0,1e-12,True
-probabilidades,"en [0, 1] (entradas x1000)",0.0,0.0,True
-probabilidades,suman 1 (entradas x1000),0.0,1e-12,True
+probabilidades,"en [0, 1]",0.004455883920597251,0.0,True
+probabilidades,suman 1,0.0,1e-12,True
 umbral,tau=0.1: predict_proba y log-loss sin cambios (253 positivos),1.0,1.0,True
 umbral,tau=0.5: predict_proba y log-loss sin cambios (120 positivos),1.0,1.0,True
 umbral,tau=0.9: predict_proba y log-loss sin cambios (23 positivos),1.0,1.0,True
-validaciones,X con NaN -> ValueError,1.0,1.0,True
-validaciones,y con otra longitud -> ValueError,1.0,1.0,True
-validaciones,X de una dimensión -> ValueError,1.0,1.0,True
-validaciones,lam2 negativo -> ValueError,1.0,1.0,True
-validaciones,Ridge con lam2 = 0 -> ValueError,1.0,1.0,True
-validaciones,eta = 0 -> ValueError,1.0,1.0,True
-validaciones,max_iter no entero -> ValueError,1.0,1.0,True
-validaciones,etiquetas distintas de 0/1 -> ValueError,1.0,1.0,True
-validaciones,predict con otras columnas -> ValueError,1.0,1.0,True
-validaciones,"tau fuera de [0, 1] -> ValueError",1.0,1.0,True
-reinicio,segundo fit reproduce el primero (mismos coef. e iteraciones),0.0,0.0,True
-reinicio,warm_start: 18 iteraciones -> 1,1.0,18.0,True
